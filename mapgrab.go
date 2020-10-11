@@ -3,14 +3,14 @@ package main
 import (
 	"errors"
 	"fmt"
+	"image"
+	"image/draw"
+	"image/png"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"time"
-	"image"
-	"image/draw"
-	"image/png"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	overlayURL := "https://www.legacy-game.net/maps/map1_overlay.png?" + fmt.Sprint(currentTime)
 	overlayFileName := fmt.Sprint(currentTime) + "_overlay.png"
 	err = downloadFile(overlayURL, overlayFileName)
@@ -58,14 +58,30 @@ func main() {
 
 	draw.Draw(combinedImage, b, srcImage, image.ZP, draw.Src)
 	draw.Draw(combinedImage, destImage.Bounds(), destImage, image.ZP, draw.Over)
-	
-	combined, err := os.Create("result.png")
+
+	// Need to check that the images directory exists
+	if _, err := os.Stat("images"); os.IsNotExist(err) {
+		os.Mkdir("images", 0755)
+	}
+
+	combined, err := os.Create("images/" + fmt.Sprint(currentTime) + "_map.png")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	png.Encode(combined, combinedImage)
 	defer combined.Close()
+
+	// Cleanup the separate overlay files which were downloaded earlier
+	err = os.Remove(gangFileName)
+	if err != nil{
+		log.Fatal(err)
+	}
+
+	err = os.Remove(overlayFileName)
+	if err != nil{
+		log.Fatal(err)
+	}
 }
 
 func downloadFile(URL, fileName string) error {
