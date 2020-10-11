@@ -15,15 +15,16 @@ import (
 
 func main() {
 	currentTime := time.Now().Unix()
+
 	gangURL := "https://www.legacy-game.net/maps/map1_gang.png?" + fmt.Sprint(currentTime)
-	gangFileName := fmt.Sprint(currentTime) + "_gang.png"
+	gangFileName := "/home/resyz/projects/go/legacy/" + fmt.Sprint(currentTime) + "_gang.png"
 	err := downloadFile(gangURL, gangFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	overlayURL := "https://www.legacy-game.net/maps/map1_overlay.png?" + fmt.Sprint(currentTime)
-	overlayFileName := fmt.Sprint(currentTime) + "_overlay.png"
+	overlayFileName := "/home/resyz/projects/go/legacy/" + fmt.Sprint(currentTime) + "_overlay.png"
 	err = downloadFile(overlayURL, overlayFileName)
 	if err != nil {
 		log.Fatal(err)
@@ -60,11 +61,11 @@ func main() {
 	draw.Draw(combinedImage, destImage.Bounds(), destImage, image.ZP, draw.Over)
 
 	// Need to check that the images directory exists
-	if _, err := os.Stat("images"); os.IsNotExist(err) {
-		os.Mkdir("images", 0755)
+	if _, err := os.Stat("/home/resyz/projects/go/legacy/images"); os.IsNotExist(err) {
+		os.Mkdir("/home/resyz/projects/go/legacy/images", 0755)
 	}
 
-	combined, err := os.Create("images/" + fmt.Sprint(currentTime) + "_map.png")
+	combined, err := os.Create("/home/resyz/projects/go/legacy/images/" + fmt.Sprint(currentTime) + "_map.png")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,12 +75,12 @@ func main() {
 
 	// Cleanup the separate overlay files which were downloaded earlier
 	err = os.Remove(gangFileName)
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = os.Remove(overlayFileName)
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 }
